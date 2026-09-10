@@ -76,6 +76,40 @@ where email = 'your-email@gmail.com';
 
 3. Sign out and sign in again — you will land on the admin panel.
 
+## Context briefs (Agentic AI 2.0)
+
+Instructors see an **Open context brief** button on every session card. The next upcoming class highlights the **1-minute recap** at the top of the dashboard.
+
+### Session → brief mapping
+
+1. Cohort **track** (`swe`, `em`, `pm`) — set when creating a cohort in admin
+2. Session **week label** — e.g. `Week 5`, `8(a)`, or `capstone` (optional; falls back to week number)
+3. Resolves to the correct module in `src/content/instructor-context-briefs.json`
+
+Run this SQL migration on Supabase if your project was created before context briefs:
+
+```sql
+-- see supabase/migrations/002_context_brief_fields.sql
+```
+
+### Updating context briefs
+
+1. Replace content by re-parsing the Word doc:
+   ```bash
+   npm run generate:briefs
+   ```
+   Source file: `Instructor_Context_Briefs_Agentic_AI_2_0_v2.docx`
+2. Do **not** edit brief text inside React components
+3. Verify:
+   ```bash
+   npm test
+   npm run lint
+   npm run typecheck
+   ```
+4. Spot-check a few dashboard sessions (SWE Week 5, EM Week 10, capstone)
+
+The ~264 KB JSON is lazy-loaded on the context brief page only — not bundled into the main dashboard client JS.
+
 ## Weekly workflow
 
 1. **Before class** — In admin panel, add or edit the session row:

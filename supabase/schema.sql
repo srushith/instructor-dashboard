@@ -10,9 +10,12 @@ create table public.profiles (
   created_at timestamptz not null default now()
 );
 
+create type public.track_id as enum ('swe', 'em', 'pm');
+
 create table public.cohorts (
   id uuid primary key default gen_random_uuid(),
   name text not null unique,
+  track public.track_id,
   created_at timestamptz not null default now()
 );
 
@@ -21,6 +24,7 @@ create table public.class_sessions (
   cohort_id uuid not null references public.cohorts(id) on delete cascade,
   instructor_id uuid not null references public.profiles(id) on delete cascade,
   week_number int not null check (week_number > 0),
+  week_label text,
   class_date date not null,
   drive_folder_url text,
   curriculum_sheet_url text,

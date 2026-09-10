@@ -30,9 +30,22 @@ export function CohortForm() {
         <input
           name="name"
           required
-          placeholder="Data Science Batch 12"
+          placeholder="Agentic AI 2.0 — SWE Batch 12"
           className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
         />
+      </div>
+      <div className="min-w-[140px]">
+        <label className="mb-1 block text-sm font-medium text-slate-700">Track</label>
+        <select
+          name="track"
+          required
+          className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+          defaultValue="swe"
+        >
+          <option value="swe">SWE</option>
+          <option value="em">EM</option>
+          <option value="pm">PM / TPM</option>
+        </select>
       </div>
       <button
         type="submit"

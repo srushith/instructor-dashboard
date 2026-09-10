@@ -95,6 +95,15 @@ export function SessionForm({
           />
         </Field>
 
+        <Field label="Week label (for context brief)">
+          <input
+            name="week_label"
+            placeholder="Week 5, 8(a), or capstone"
+            defaultValue={session?.week_label ?? ""}
+            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+          />
+        </Field>
+
         <Field label="Class date">
           <input
             type="date"

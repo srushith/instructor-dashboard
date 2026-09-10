@@ -3,6 +3,9 @@ import { getCurrentProfile } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { Header } from "@/components/Header";
 import { SessionCard } from "@/components/SessionCard";
+import { NextClassHero } from "@/components/context-briefs/NextClassHero";
+import { getModuleById, loadBriefsDocument } from "@/lib/context-briefs/loader";
+import { resolveSessionContextBrief } from "@/lib/context-briefs/resolve-session";
 import type { ClassSession } from "@/lib/types";
 
 export default async function DashboardPage() {
@@ -13,7 +16,7 @@ export default async function DashboardPage() {
   const { data: sessions } = await supabase
     .from("class_sessions")
     .select(
-      "*, cohorts(name), profiles!class_sessions_instructor_id_fkey(full_name, email)",
+      "*, cohorts(name, track), profiles!class_sessions_instructor_id_fkey(full_name, email)",
     )
     .eq("instructor_id", profile.id)
     .order("class_date", { ascending: true });
@@ -32,6 +35,26 @@ export default async function DashboardPage() {
         ).toFixed(1)
       : null;
 
+  const nextSession = upcoming[0] ?? null;
+  let nextBriefModule = null;
+  let nextResolution = null;
+
+  if (nextSession) {
+    nextResolution = resolveSessionContextBrief(nextSession);
+    if (nextResolution.status === "found") {
+      const doc = await loadBriefsDocument();
+      nextBriefModule = getModuleById(doc, nextResolution.moduleId);
+    }
+  }
+
+  const sessionBriefMeta = typedSessions.map((session) => {
+    const resolution = resolveSessionContextBrief(session);
+    return {
+      sessionId: session.id,
+      resolution,
+    };
+  });
+
   return (
     <div className="min-h-full bg-slate-100">
       <Header profile={profile} />
@@ -39,10 +62,23 @@ export default async function DashboardPage() {
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-slate-900">Your classes</h1>
           <p className="mt-1 text-slate-600">
-            Content folders, curriculum sheets, learner background, and ratings for
-            your assigned sessions.
+            Upcoming sessions with context briefs, content links, learner background, and
+            ratings.
           </p>
         </div>
+
+        {nextSession && (
+          <NextClassHero
+            session={nextSession}
+            module={nextBriefModule}
+            moduleId={
+              nextResolution?.status === "found" ? nextResolution.moduleId : null
+            }
+            trackId={
+              nextResolution?.status === "found" ? nextResolution.trackId : null
+            }
+          />
+        )}
 
         <div className="mb-8 grid gap-4 sm:grid-cols-3">
           <StatCard label="Upcoming" value={String(upcoming.length)} />
@@ -60,9 +96,23 @@ export default async function DashboardPage() {
             <EmptyState message="No upcoming classes assigned to you." />
           ) : (
             <div className="grid gap-4">
-              {upcoming.map((session) => (
-                <SessionCard key={session.id} session={session} />
-              ))}
+              {upcoming.map((session) => {
+                const meta = sessionBriefMeta.find((m) => m.sessionId === session.id);
+                const r = meta?.resolution;
+                return (
+                  <SessionCard
+                    key={session.id}
+                    session={session}
+                    contextBriefModuleId={
+                      r?.status === "found" ? r.moduleId : null
+                    }
+                    contextBriefTrackId={
+                      r?.status === "found" ? r.trackId : null
+                    }
+                    contextBriefStatus={r?.status ?? "unmapped"}
+                  />
+                );
+              })}
             </div>
           )}
         </section>
@@ -73,9 +123,23 @@ export default async function DashboardPage() {
             <EmptyState message="No past sessions yet." />
           ) : (
             <div className="grid gap-4">
-              {past.map((session) => (
-                <SessionCard key={session.id} session={session} />
-              ))}
+              {past.map((session) => {
+                const meta = sessionBriefMeta.find((m) => m.sessionId === session.id);
+                const r = meta?.resolution;
+                return (
+                  <SessionCard
+                    key={session.id}
+                    session={session}
+                    contextBriefModuleId={
+                      r?.status === "found" ? r.moduleId : null
+                    }
+                    contextBriefTrackId={
+                      r?.status === "found" ? r.trackId : null
+                    }
+                    contextBriefStatus={r?.status ?? "unmapped"}
+                  />
+                );
+              })}
             </div>
           )}
         </section>

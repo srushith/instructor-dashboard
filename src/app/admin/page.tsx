@@ -16,7 +16,7 @@ export default async function AdminPage() {
 
   const [{ data: cohorts }, { data: instructors }, { data: sessions }] =
     await Promise.all([
-      supabase.from("cohorts").select("id, name").order("name"),
+      supabase.from("cohorts").select("id, name, track").order("name"),
       supabase
         .from("profiles")
         .select("id, email, full_name, role")
@@ -24,7 +24,7 @@ export default async function AdminPage() {
       supabase
         .from("class_sessions")
         .select(
-          "*, cohorts(name), profiles!class_sessions_instructor_id_fkey(full_name, email)",
+          "*, cohorts(name, track), profiles!class_sessions_instructor_id_fkey(full_name, email)",
         )
         .order("class_date", { ascending: false }),
     ]);

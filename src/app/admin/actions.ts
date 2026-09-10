@@ -15,10 +15,11 @@ async function requireAdmin() {
 export async function createCohort(formData: FormData) {
   await requireAdmin();
   const name = String(formData.get("name") ?? "").trim();
+  const track = String(formData.get("track") ?? "").trim() || null;
   if (!name) return { error: "Cohort name is required" };
 
   const supabase = await createClient();
-  const { error } = await supabase.from("cohorts").insert({ name });
+  const { error } = await supabase.from("cohorts").insert({ name, track });
   if (error) return { error: error.message };
 
   revalidatePath("/admin");
@@ -31,6 +32,7 @@ export async function createSession(formData: FormData) {
   const cohortId = String(formData.get("cohort_id") ?? "");
   const instructorId = String(formData.get("instructor_id") ?? "");
   const weekNumber = Number(formData.get("week_number"));
+  const weekLabel = String(formData.get("week_label") ?? "").trim();
   const classDate = String(formData.get("class_date") ?? "");
   const driveFolderUrl = String(formData.get("drive_folder_url") ?? "").trim();
   const curriculumSheetUrl = String(formData.get("curriculum_sheet_url") ?? "").trim();
@@ -49,6 +51,7 @@ export async function createSession(formData: FormData) {
     cohort_id: cohortId,
     instructor_id: instructorId,
     week_number: weekNumber,
+    week_label: weekLabel || null,
     class_date: classDate,
     drive_folder_url: driveFolderUrl || null,
     curriculum_sheet_url: curriculumSheetUrl || null,
@@ -71,6 +74,7 @@ export async function updateSession(formData: FormData) {
   const cohortId = String(formData.get("cohort_id") ?? "");
   const instructorId = String(formData.get("instructor_id") ?? "");
   const weekNumber = Number(formData.get("week_number"));
+  const weekLabel = String(formData.get("week_label") ?? "").trim();
   const classDate = String(formData.get("class_date") ?? "");
   const driveFolderUrl = String(formData.get("drive_folder_url") ?? "").trim();
   const curriculumSheetUrl = String(formData.get("curriculum_sheet_url") ?? "").trim();
@@ -89,6 +93,7 @@ export async function updateSession(formData: FormData) {
       cohort_id: cohortId,
       instructor_id: instructorId,
       week_number: weekNumber,
+      week_label: weekLabel || null,
       class_date: classDate,
       drive_folder_url: driveFolderUrl || null,
       curriculum_sheet_url: curriculumSheetUrl || null,

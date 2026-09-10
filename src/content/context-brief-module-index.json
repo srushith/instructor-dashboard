@@ -1,0 +1,53 @@
+{
+  "swe": {
+    "orientation": "swe-orientation",
+    "W1": "swe-w01",
+    "W2": "swe-w02",
+    "W3": "swe-w03",
+    "W4": "swe-w04",
+    "W5": "swe-w05",
+    "W6": "swe-w06",
+    "W7": "swe-w07",
+    "W8": "swe-w08",
+    "W8a": "swe-w08a",
+    "W9": "swe-w09",
+    "W9a": "swe-w09a",
+    "capstone": "swe-capstone",
+    "W12": "swe-w12",
+    "W13": "swe-w13",
+    "W14": "swe-w14",
+    "W15": "swe-w15"
+  },
+  "em": {
+    "orientation": "em-orientation",
+    "W1": "em-w01",
+    "W2": "em-w02",
+    "W3": "em-w03",
+    "W4": "em-w04",
+    "W5": "em-w05",
+    "W6": "em-w06",
+    "W6a": "em-w06a",
+    "W7": "em-w07",
+    "W7a": "em-w07a",
+    "capstone": "em-capstone",
+    "W10": "em-w10",
+    "W11": "em-w11",
+    "W12": "em-w12",
+    "W13": "em-w13"
+  },
+  "pm": {
+    "orientation": "pm-orientation",
+    "W1": "pm-w01",
+    "W2": "pm-w02",
+    "W3": "pm-w03",
+    "W4": "pm-w04",
+    "W5": "pm-w05",
+    "W6": "pm-w06",
+    "W7": "pm-w07",
+    "capstone": "pm-capstone",
+    "W10": "pm-w10",
+    "W11": "pm-w11",
+    "W12": "pm-w12",
+    "W13": "pm-w13"
+  }
+}

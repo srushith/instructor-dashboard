@@ -24,3 +24,18 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  .context-brief-print section {
+    break-inside: avoid;
+  }
+
+  .context-brief-print article,
+  .context-brief-print li {
+    break-inside: avoid;
+  }
+}

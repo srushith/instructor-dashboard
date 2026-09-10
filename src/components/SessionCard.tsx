@@ -1,8 +1,13 @@
+import Link from "next/link";
 import type { ClassSession } from "@/lib/types";
+import { contextBriefHref } from "@/lib/context-briefs/resolve-session";
 
 type SessionCardProps = {
   session: ClassSession;
   showInstructor?: boolean;
+  contextBriefModuleId?: string | null;
+  contextBriefTrackId?: "swe" | "em" | "pm" | null;
+  contextBriefStatus?: "found" | "none" | "unmapped";
 };
 
 function formatDate(date: string) {
@@ -14,17 +19,24 @@ function formatDate(date: string) {
   });
 }
 
-export function SessionCard({ session, showInstructor = false }: SessionCardProps) {
+export function SessionCard({
+  session,
+  showInstructor = false,
+  contextBriefModuleId = null,
+  contextBriefTrackId = null,
+  contextBriefStatus = "unmapped",
+}: SessionCardProps) {
   const cohortName = session.cohorts?.name ?? "Unknown cohort";
   const instructorName =
     session.profiles?.full_name ?? session.profiles?.email ?? "Unknown";
+  const weekLabel = session.week_label ?? `Week ${session.week_number}`;
 
   return (
     <article className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h3 className="text-lg font-semibold text-slate-900">
-            Week {session.week_number} · {cohortName}
+            {weekLabel} · {cohortName}
           </h3>
           <p className="mt-1 text-sm text-slate-500">{formatDate(session.class_date)}</p>
           {showInstructor && (
@@ -41,15 +53,18 @@ export function SessionCard({ session, showInstructor = false }: SessionCardProp
         )}
       </div>
 
+      <div className="mt-4">
+        <ContextBriefAction
+          moduleId={contextBriefModuleId}
+          trackId={contextBriefTrackId}
+          sessionId={session.id}
+          status={contextBriefStatus}
+        />
+      </div>
+
       <div className="mt-4 grid gap-3 sm:grid-cols-2">
-        <ResourceLink
-          label="Content drive folder"
-          url={session.drive_folder_url}
-        />
-        <ResourceLink
-          label="Curriculum sheet"
-          url={session.curriculum_sheet_url}
-        />
+        <ResourceLink label="Content drive folder" url={session.drive_folder_url} />
+        <ResourceLink label="Curriculum sheet" url={session.curriculum_sheet_url} />
       </div>
 
       {session.learner_background && (
@@ -70,6 +85,43 @@ export function SessionCard({ session, showInstructor = false }: SessionCardProp
         </div>
       )}
     </article>
+  );
+}
+
+function ContextBriefAction({
+  moduleId,
+  trackId,
+  sessionId,
+  status,
+}: {
+  moduleId: string | null;
+  trackId: "swe" | "em" | "pm" | null;
+  sessionId: string;
+  status: "found" | "none" | "unmapped";
+}) {
+  if (status === "none") {
+    return (
+      <p className="text-sm text-slate-500">
+        No context brief available for this session.
+      </p>
+    );
+  }
+
+  if (status === "unmapped" || !moduleId || !trackId) {
+    return (
+      <p className="text-sm text-slate-500">
+        We couldn&apos;t find a context brief for this class yet.
+      </p>
+    );
+  }
+
+  return (
+    <Link
+      href={contextBriefHref(moduleId, sessionId, trackId)}
+      className="inline-flex rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+    >
+      Open context brief
+    </Link>
   );
 }
 
