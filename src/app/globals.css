@@ -1,8 +1,16 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #070b1a;
+  --foreground: #e8ecff;
+  --card: rgba(15, 23, 42, 0.72);
+  --card-border: rgba(99, 102, 241, 0.25);
+  --accent-cyan: #22d3ee;
+  --accent-violet: #a78bfa;
+  --accent-fuchsia: #e879f9;
+  --accent-amber: #fbbf24;
+  --glow-cyan: rgba(34, 211, 238, 0.35);
+  --glow-violet: rgba(167, 139, 250, 0.35);
 }
 
 @theme inline {
@@ -12,17 +20,85 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  min-height: 100vh;
+}
+
+.app-shell {
+  background:
+    radial-gradient(ellipse 80% 50% at 20% -10%, var(--glow-violet), transparent 55%),
+    radial-gradient(ellipse 60% 40% at 90% 10%, var(--glow-cyan), transparent 50%),
+    radial-gradient(ellipse 50% 30% at 50% 100%, rgba(232, 121, 249, 0.15), transparent 60%),
+    linear-gradient(180deg, #070b1a 0%, #0f172a 45%, #111827 100%);
+}
+
+.glass-card {
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  backdrop-filter: blur(16px);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.04) inset,
+    0 20px 50px -20px rgba(0, 0, 0, 0.5);
+}
+
+.glass-card-hover {
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+}
+
+.glass-card-hover:hover {
+  border-color: rgba(34, 211, 238, 0.45);
+  box-shadow:
+    0 0 0 1px rgba(34, 211, 238, 0.1) inset,
+    0 0 40px -10px var(--glow-cyan);
+  transform: translateY(-2px);
+}
+
+.track-swe {
+  --track-color: var(--accent-cyan);
+  --track-glow: var(--glow-cyan);
+}
+
+.track-em {
+  --track-color: var(--accent-violet);
+  --track-glow: var(--glow-violet);
+}
+
+.track-pm {
+  --track-color: var(--accent-fuchsia);
+  --track-glow: rgba(232, 121, 249, 0.35);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #6366f1 0%, #22d3ee 100%);
+  color: #041018;
+  font-weight: 600;
+  box-shadow: 0 0 30px -5px var(--glow-cyan);
+}
+
+.btn-primary:hover {
+  filter: brightness(1.08);
+  box-shadow: 0 0 40px -5px var(--glow-cyan);
+}
+
+.btn-ghost {
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  background: rgba(15, 23, 42, 0.5);
+  color: #cbd5e1;
+}
+
+.btn-ghost:hover {
+  border-color: rgba(34, 211, 238, 0.5);
+  color: #f8fafc;
+}
+
+.text-gradient {
+  background: linear-gradient(135deg, #c4b5fd 0%, #22d3ee 50%, #e879f9 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 @media print {

@@ -99,14 +99,20 @@ Run this SQL migration on Supabase if your project was created before context br
    npm run generate:briefs
    ```
    Source file: `Instructor_Context_Briefs_Agentic_AI_2_0_v2.docx`
-2. Do **not** edit brief text inside React components
-3. Verify:
+
+2. Update week-wise brief sheets from Excel:
+   ```bash
+   npm run generate:week-briefs
+   ```
+   Source file: `Instructor_Context_Briefs_by_Week.xlsx` (SWE / EM / PM-TPM tabs)
+3. Do **not** edit brief text inside React components
+4. Verify:
    ```bash
    npm test
    npm run lint
    npm run typecheck
    ```
-4. Spot-check a few dashboard sessions (SWE Week 5, EM Week 10, capstone)
+5. Spot-check a few dashboard sessions (SWE Week 5, EM Week 10, capstone)
 
 The ~264 KB JSON is lazy-loaded on the context brief page only — not bundled into the main dashboard client JS.
 

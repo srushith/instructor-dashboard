@@ -8,18 +8,21 @@ export default async function LoginPage({
   const { error } = await searchParams;
 
   return (
-    <div className="flex min-h-full flex-1 items-center justify-center bg-slate-100 px-4 py-12">
-      <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
+    <div className="app-shell flex min-h-full flex-1 items-center justify-center px-4 py-12">
+      <div className="glass-card w-full max-w-md rounded-3xl p-8">
         <div className="mb-8 text-center">
-          <h1 className="text-2xl font-bold text-slate-900">Instructor Portal</h1>
-          <p className="mt-2 text-sm text-slate-600">
-            Sign in to view your class schedule, content links, learner background,
-            and session ratings.
+          <p className="text-xs font-bold uppercase tracking-[0.2em] text-cyan-400">
+            Agentic AI 2.0
+          </p>
+          <h1 className="mt-2 text-3xl font-bold text-gradient">Instructor Portal</h1>
+          <p className="mt-3 text-sm text-slate-400">
+            Context briefs, class prep, learner background, and session insights —
+            all in one place.
           </p>
         </div>
 
         {error && (
-          <div className="mb-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
+          <div className="mb-4 rounded-xl border border-red-400/30 bg-red-500/10 px-3 py-2 text-sm text-red-300">
             Sign-in failed. Please try again.
           </div>
         )}
@@ -27,7 +30,7 @@ export default async function LoginPage({
         <GoogleSignInButton />
 
         <p className="mt-6 text-center text-xs text-slate-500">
-          Instructors and admins use Google sign-in. Contact ops if you need access.
+          Sign in with Google. Contact ops if you need access.
         </p>
       </div>
     </div>

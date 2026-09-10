@@ -6,6 +6,8 @@ import { SessionCard } from "@/components/SessionCard";
 import { NextClassHero } from "@/components/context-briefs/NextClassHero";
 import { getModuleById, loadBriefsDocument } from "@/lib/context-briefs/loader";
 import { resolveSessionContextBrief } from "@/lib/context-briefs/resolve-session";
+import { loadWeekBriefsByWeek } from "@/lib/week-briefs/loader";
+import { getWeekBriefForSession } from "@/lib/week-briefs/resolve-week-label";
 import type { ClassSession } from "@/lib/types";
 
 export default async function DashboardPage() {
@@ -35,35 +37,43 @@ export default async function DashboardPage() {
         ).toFixed(1)
       : null;
 
+  const [weekBriefs, briefsDoc] = await Promise.all([
+    loadWeekBriefsByWeek(),
+    loadBriefsDocument(),
+  ]);
+
   const nextSession = upcoming[0] ?? null;
   let nextBriefModule = null;
   let nextResolution = null;
+  let nextWeekBrief = null;
 
   if (nextSession) {
     nextResolution = resolveSessionContextBrief(nextSession);
+    nextWeekBrief = getWeekBriefForSession(weekBriefs, nextSession);
     if (nextResolution.status === "found") {
-      const doc = await loadBriefsDocument();
-      nextBriefModule = getModuleById(doc, nextResolution.moduleId);
+      nextBriefModule = getModuleById(briefsDoc, nextResolution.moduleId);
     }
   }
 
-  const sessionBriefMeta = typedSessions.map((session) => {
+  function sessionMeta(session: ClassSession) {
     const resolution = resolveSessionContextBrief(session);
-    return {
-      sessionId: session.id,
-      resolution,
-    };
-  });
+    const weekBrief = getWeekBriefForSession(weekBriefs, session);
+    const module =
+      resolution.status === "found"
+        ? getModuleById(briefsDoc, resolution.moduleId)
+        : null;
+    return { resolution, weekBrief, module };
+  }
 
   return (
-    <div className="min-h-full bg-slate-100">
+    <div className="min-h-full">
       <Header profile={profile} />
       <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
         <div className="mb-8">
-          <h1 className="text-2xl font-bold text-slate-900">Your classes</h1>
-          <p className="mt-1 text-slate-600">
-            Upcoming sessions with context briefs, content links, learner background, and
-            ratings.
+          <h1 className="text-3xl font-bold text-gradient">Your classes</h1>
+          <p className="mt-2 text-slate-400">
+            Prep for each week with context briefs, teaching emphasis, likely questions,
+            and learner background.
           </p>
         </div>
 
@@ -77,39 +87,43 @@ export default async function DashboardPage() {
             trackId={
               nextResolution?.status === "found" ? nextResolution.trackId : null
             }
+            weekBrief={nextWeekBrief}
           />
         )}
 
         <div className="mb-8 grid gap-4 sm:grid-cols-3">
-          <StatCard label="Upcoming" value={String(upcoming.length)} />
-          <StatCard label="Completed" value={String(past.length)} />
+          <StatCard label="Upcoming" value={String(upcoming.length)} accent="cyan" />
+          <StatCard label="Completed" value={String(past.length)} accent="violet" />
           <StatCard
             label="Average rating"
             value={avgRating ?? "—"}
             hint={ratedCount > 0 ? `${ratedCount} rated sessions` : "No ratings yet"}
+            accent="amber"
           />
         </div>
 
         <section className="mb-10">
-          <h2 className="mb-4 text-lg font-semibold text-slate-900">Upcoming</h2>
+          <h2 className="mb-4 text-lg font-semibold text-white">Upcoming</h2>
           {upcoming.length === 0 ? (
             <EmptyState message="No upcoming classes assigned to you." />
           ) : (
             <div className="grid gap-4">
-              {upcoming.map((session) => {
-                const meta = sessionBriefMeta.find((m) => m.sessionId === session.id);
-                const r = meta?.resolution;
+              {upcoming.map((session, index) => {
+                const { resolution, weekBrief, module } = sessionMeta(session);
                 return (
                   <SessionCard
                     key={session.id}
                     session={session}
+                    module={module}
+                    weekBrief={weekBrief}
+                    featured={index === 0}
                     contextBriefModuleId={
-                      r?.status === "found" ? r.moduleId : null
+                      resolution?.status === "found" ? resolution.moduleId : null
                     }
                     contextBriefTrackId={
-                      r?.status === "found" ? r.trackId : null
+                      resolution?.status === "found" ? resolution.trackId : null
                     }
-                    contextBriefStatus={r?.status ?? "unmapped"}
+                    contextBriefStatus={resolution?.status ?? "unmapped"}
                   />
                 );
               })}
@@ -118,25 +132,26 @@ export default async function DashboardPage() {
         </section>
 
         <section>
-          <h2 className="mb-4 text-lg font-semibold text-slate-900">Past sessions</h2>
+          <h2 className="mb-4 text-lg font-semibold text-white">Past sessions</h2>
           {past.length === 0 ? (
             <EmptyState message="No past sessions yet." />
           ) : (
             <div className="grid gap-4">
               {past.map((session) => {
-                const meta = sessionBriefMeta.find((m) => m.sessionId === session.id);
-                const r = meta?.resolution;
+                const { resolution, weekBrief, module } = sessionMeta(session);
                 return (
                   <SessionCard
                     key={session.id}
                     session={session}
+                    module={module}
+                    weekBrief={weekBrief}
                     contextBriefModuleId={
-                      r?.status === "found" ? r.moduleId : null
+                      resolution?.status === "found" ? resolution.moduleId : null
                     }
                     contextBriefTrackId={
-                      r?.status === "found" ? r.trackId : null
+                      resolution?.status === "found" ? resolution.trackId : null
                     }
-                    contextBriefStatus={r?.status ?? "unmapped"}
+                    contextBriefStatus={resolution?.status ?? "unmapped"}
                   />
                 );
               })}
@@ -152,15 +167,25 @@ function StatCard({
   label,
   value,
   hint,
+  accent,
 }: {
   label: string;
   value: string;
   hint?: string;
+  accent: "cyan" | "violet" | "amber";
 }) {
+  const colors = {
+    cyan: "border-cyan-500/30 from-cyan-500/10",
+    violet: "border-violet-500/30 from-violet-500/10",
+    amber: "border-amber-500/30 from-amber-500/10",
+  };
+
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-      <p className="text-sm font-medium text-slate-500">{label}</p>
-      <p className="mt-1 text-3xl font-bold text-slate-900">{value}</p>
+    <div
+      className={`glass-card rounded-2xl border bg-gradient-to-br to-transparent p-4 ${colors[accent]}`}
+    >
+      <p className="text-sm font-medium text-slate-400">{label}</p>
+      <p className="mt-1 text-3xl font-bold text-white">{value}</p>
       {hint && <p className="mt-1 text-xs text-slate-500">{hint}</p>}
     </div>
   );
@@ -168,7 +193,7 @@ function StatCard({
 
 function EmptyState({ message }: { message: string }) {
   return (
-    <div className="rounded-xl border border-dashed border-slate-300 bg-white px-4 py-10 text-center text-sm text-slate-500">
+    <div className="glass-card rounded-2xl border-dashed border-white/15 px-4 py-10 text-center text-sm text-slate-500">
       {message}
     </div>
   );
